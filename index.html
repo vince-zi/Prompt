@@ -7,50 +7,62 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050505; color: #fff; overflow-x: hidden; }
-        #activation-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; }
-        .modal-card { background: #111; border: 1px solid rgba(245, 158, 11, 0.3); padding: 3rem; border-radius: 3rem; max-width: 450px; width: 95%; text-align: center; }
-        .key-input { background: #000 !important; border: 2px solid #222 !important; color: #f59e0b !important; text-align: center; font-family: monospace; letter-spacing: 2px; text-transform: uppercase; }
-        .tab-btn.active { background-color: #f59e0b; color: #000; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+        body { font-family: 'Plus Jakarta Sans', 'PingFang SC', sans-serif; background-color: #050505; color: #ffffff; overflow-x: hidden; }
+        
+        /* 激活弹窗 - 极致深色 */
+        #activation-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.96); backdrop-filter: blur(25px); display: flex; align-items: center; justify-content: center; }
+        .modal-card { background: #111; border: 1px solid rgba(245, 158, 11, 0.3); padding: 3rem; border-radius: 3rem; max-width: 450px; width: 95%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        
+        /* 激活码专用输入框 */
+        .key-input { background: #000 !important; border: 2px solid #222 !important; color: #f59e0b !important; text-align: center; font-family: monospace; letter-spacing: 2px; text-transform: uppercase; border-radius: 1.5rem !important; }
+        
+        /* 主界面输入框和下拉框 - 统一深色 */
+        .main-input { 
+            background: #111111 !important; 
+            border: 1px solid #222222 !important; 
+            color: #ffffff !important; 
+            border-radius: 1rem !important;
+            transition: all 0.2s ease;
+        }
+        .main-input:focus { border-color: #f59e0b !important; background: #151515 !important; outline: none; }
+        
+        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-btn.active { background-color: #f59e0b; color: #000; box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+        
         .gradient-border { border: 1px solid transparent; background: linear-gradient(#121212, #121212) padding-box, linear-gradient(45deg, #f59e0b, #78350f) border-box; }
         .custom-input { display: none; }
         .status-tag { font-size: 10px; background: rgba(245,158,11,0.1); color: #f59e0b; font-weight: bold; padding: 4px 12px; border-radius: 99px; border: 1px solid rgba(245,158,11,0.2); }
-        .loading-dots:after { content: ' .'; animation: dots 1.5s steps(5, end) infinite; }
-        @keyframes dots { 0%, 20% { content: ' .'; } 40% { content: ' ..'; } 60% { content: ' ...'; } 80%, 100% { content: ''; } }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <!-- 激活弹窗 -->
+    <!-- 授权弹窗 -->
     <div id="activation-modal" style="display: none;">
         <div class="modal-card">
             <div class="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-amber-500/20">
                 <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
             </div>
-            <h2 class="text-2xl font-black text-white mb-3">云端授权验证</h2>
-            <p id="modal-msg" class="text-gray-500 text-sm mb-10 leading-relaxed">请输入您的 30 天时长卡密。<br>该卡密将与您的云端记录永久绑定。</p>
-            
-            <input type="text" id="cd-key" class="key-input w-full p-5 mb-6 rounded-2xl text-xl font-bold" placeholder="V30-XXXX-XXXX">
-            
-            <button id="verify-btn" onclick="verifyKey()" class="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 mb-6 uppercase tracking-widest text-sm">
-                立即开启云端激活
-            </button>
-            
-            <a href="https://vince-zi.github.io/Ai-master/" class="text-amber-500/40 text-xs font-bold uppercase tracking-widest hover:text-amber-500">
-                还没有卡密？点击获取授权 →
-            </a>
+            <h2 class="text-2xl font-black text-white mb-3 tracking-tight">云端授权激活</h2>
+            <p id="modal-msg" class="text-gray-500 text-sm mb-10 leading-relaxed">请输入您的 30 天时长卡密。<br>授权将与您的云端记录永久绑定。</p>
+            <input type="text" id="cd-key" class="key-input w-full p-5 mb-6 text-xl font-bold" placeholder="V30-XXXX-XXXX">
+            <button id="verify-btn" onclick="verifyKey()" class="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 mb-6 uppercase tracking-widest text-sm">立即开启云端激活</button>
+            <a href="https://vince-zi.github.io/Ai-master/" class="text-amber-500/40 text-xs font-bold uppercase tracking-widest hover:text-amber-500">获取授权卡密 →</a>
         </div>
     </div>
 
     <!-- 主界面 -->
     <div id="main-content" style="display: none;">
-        <!-- ... 原有头部和布局逻辑保持不变 ... -->
         <div class="max-w-7xl mx-auto">
+            <!-- 头部导航 -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg"><svg class="w-8 h-8 text-black fill-current" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-                    <div><h1 class="text-4xl font-black italic tracking-tighter text-white">AI MASTER <span class="text-amber-500">V30</span></h1>
-                    <div class="flex items-center gap-2 mt-1"><span class="status-tag" id="expiry-display">VIP Cloud Active</span></div></div>
+                    <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.3)]">
+                        <svg class="w-8 h-8 text-black fill-current" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-black italic tracking-tighter text-white uppercase">AI Master <span class="text-amber-500">V30</span></h1>
+                        <div class="flex items-center gap-2 mt-1"><span class="status-tag" id="expiry-display text-amber-500">Cloud Syncing...</span></div>
+                    </div>
                 </div>
                 <div class="flex bg-neutral-900/90 p-1.5 rounded-2xl border border-white/5 flex-wrap justify-center gap-1">
                     <button onclick="switchTab('portrait')" id="btn-portrait" class="tab-btn active px-8 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest">商业人像</button>
@@ -59,54 +71,53 @@
                     <button onclick="switchTab('commercial')" id="btn-commercial" class="tab-btn px-8 py-3.5 rounded-xl text-sm font-black text-gray-500 uppercase tracking-widest">商业摄影</button>
                 </div>
             </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <div class="lg:col-span-2 space-y-8"><div id="track-content" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12"><button onclick="generatePrompt()" class="py-5 bg-amber-500 text-black font-black rounded-2xl uppercase tracking-widest text-lg">🚀 生成终极指令</button><button onclick="copyText()" class="py-5 bg-white/5 text-amber-500 font-bold rounded-2xl border border-white/10 uppercase tracking-widest text-lg">一键复制</button></div></div>
-                <div class="lg:col-span-1"><div class="sticky top-12 gradient-border p-8 rounded-[3.5rem] shadow-2xl relative overflow-hidden"><h3 class="text-xs font-black text-amber-500 uppercase tracking-[0.4em] mb-8">Prompt Output</h3><textarea id="result" readonly class="w-full h-[600px] bg-transparent border-none text-sm font-mono text-gray-400 leading-relaxed resize-none focus:ring-0" placeholder="授权已解锁"></textarea></div></div>
+                <!-- 左侧配置 -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div id="track-content" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
+                        <button onclick="generatePrompt()" class="py-5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-2xl shadow-2xl shadow-amber-500/40 uppercase tracking-widest text-lg">🚀 生成终极指令</button>
+                        <button onclick="copyText()" class="py-5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 uppercase tracking-widest text-lg flex items-center justify-center gap-2">复制到剪贴板</button>
+                    </div>
+                </div>
+                <!-- 右侧输出 -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-12 gradient-border p-8 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
+                        <h3 class="text-xs font-black text-amber-500 uppercase tracking-[0.4em] mb-8">Prompt Output</h3>
+                        <textarea id="result" readonly class="w-full h-[600px] bg-transparent border-none text-sm font-mono text-gray-400 leading-relaxed resize-none focus:ring-0" placeholder="Waiting for parameters..."></textarea>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- 云端核心逻辑 ---
         async function verifyKey(manualKey = null) {
             const key = manualKey || document.getElementById('cd-key').value.trim().toUpperCase();
             if (!key) return;
-
             const btn = document.getElementById('verify-btn');
-            const msg = document.getElementById('modal-msg');
-            
-            btn.innerText = "正在同步云端数据...";
-            btn.disabled = true;
+            if(btn) btn.innerText = "正在验证云端授权...";
 
             try {
-                // 尝试请求
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key })
                 });
-
                 const data = await response.json();
-
                 if (response.ok) {
                     localStorage.setItem('v30_active_key', key);
                     localStorage.setItem('v30_expiry_time', data.expiry);
                     showApp(data.expiry);
                 } else {
-                    if (manualKey) { // 如果是自动校验失败，静默处理
-                        document.getElementById('activation-modal').style.display = 'flex';
-                    } else {
-                        alert("❌ 验证失败：" + (data.error || "未知错误"));
-                    }
+                    if (!manualKey) alert("❌ 验证失败：" + (data.error || "未知错误"));
+                    else document.getElementById('activation-modal').style.display = 'flex';
                 }
             } catch (err) {
-                // 网络错误重试机制
-                console.warn("Retrying due to network issue...");
-                setTimeout(() => {
-                    if (!manualKey) alert("☁️ 云端正在唤醒中，请稍后再次点击激活。");
-                    btn.disabled = false;
-                    btn.innerText = "立即开启云端激活";
-                }, 1000);
+                if (!manualKey) alert("☁️ 云端正在唤醒，请稍后再次尝试。");
+                if(btn) btn.innerText = "立即开启云端激活";
             }
         }
 
@@ -123,16 +134,15 @@
             if (savedKey) {
                 const savedExpiry = localStorage.getItem('v30_expiry_time');
                 if (savedExpiry && Date.now() < parseInt(savedExpiry)) {
-                    // 如果本地还没过期，先展示界面，再后台同步
                     showApp(parseInt(savedExpiry));
-                    verifyKey(savedKey); // 后台静默同步最新日期
+                    verifyKey(savedKey); // 异步后台检查
                     return;
                 }
             }
             document.getElementById('activation-modal').style.display = 'flex';
         }
 
-        // --- 业务逻辑 (原有逻辑) ---
+        // --- 业务数据 ---
         const trackData = {
             portrait: { title: "商业人像", categories: [ { label: "01. 角色主体", type: "input", id: "subject", val: "一位充满气质的亚裔女性模特" }, { label: "02. 画面构图", type: "select", id: "p2", options: ["中心构图 (Centralized)", "上中下拼图", "三分法", "黄金比例", "对称构图", "✍️ 自定义"] }, { label: "03. 拍摄环境", type: "input", id: "p3", val: "复古的欧洲图书馆" }, { label: "04. 核心机位", type: "select", id: "p4", options: ["平视", "仰拍", "俯拍", "荷兰位", "极尽特写", "✍️ 自定义"] }, { label: "05. 相机品牌", type: "select", id: "p5", options: ["哈苏 (X2D)", "徕卡 (M11-P)", "飞思 (IQ4)", "富士 (GFX)", "佳能 (R3)", "✍️ 自定义"] }, { label: "06. 焦段选择", type: "select", id: "p6", options: ["85mm", "35mm", "50mm", "135mm", "✍️ 自定义"] }, { label: "07. 光圈设置", type: "select", id: "p7", options: ["f/1.2", "f/1.4", "f/2.8", "f/8.0", "✍️ 自定义"] }, { label: "08. 灯光品牌", type: "select", id: "p8", options: ["布朗 (Broncolor)", "保富图 (Profoto)", "阿莱 (Arri)", "自然窗光", "✍️ 自定义"] }, { label: "09. 布光方案", type: "select", id: "p9", options: ["伦勃朗光", "蝴蝶光", "侧位光", "轮廓光", "丁达尔效应", "✍️ 自定义"] }, { label: "10. 控光附件", type: "select", id: "p10", options: ["八角柔光箱", "雷达罩", "束光筒", "反光板", "✍️ 自定义"] }, { label: "11. 视觉元素", type: "select", id: "p11", options: ["无", "悬浮花瓣", "弥漫烟雾", "镜面反射", "✍️ 自定义"] }, { label: "12. 皮肤质感", type: "select", id: "p12", options: ["极致毛孔", "湿润质感", "丝滑润饰", "胶片颗粒", "✍️ 自定义"] }, { label: "13. 美学风格", type: "select", id: "p13", options: ["情感真实主义", "新中式", "古典油画", "黑色电影", "极简主义", "✍️ 自定义"] }, { label: "14. 色彩调性", type: "select", id: "p14", options: ["高透模式", "柯达 400", "电影青橙", "王家卫风格", "✍️ 自定义"] }, { label: "15. 商业排版", type: "select", id: "p15", options: ["无", "VOGUE 封面", "时尚芭莎", "电影海报", "✍️ 自定义"] }, { label: "16. 个人署名", type: "input", id: "p16", val: "Created by Master" } ] },
             anime: { title: "动漫CG", categories: [ { label: "01. 角色主体", type: "input", id: "subject", val: "银发机械武装少女" }, { label: "02. 环境结构", type: "input", id: "environment", val: "赛博霓虹下的东京废墟" }, { label: "03. 风格类型", type: "select", id: "style_type", options: ["-- 请选择 --", "经典赛璐珞", "新海诚治愈系", "京阿尼唯美", "宫崎骏吉卜力", "浮世绘", "光电/光效风", "虚幻5 CG渲染", "90年代复古", "蒸汽波", "迪士尼3D", "✍️ 自定义"] }, { label: "04. 画风流派", type: "select", id: "a4", options: ["京阿尼", "新海诚", "吉卜力", "MAPPA", "90s 赛璐珞", "虚幻5极致", "赛博朋克", "迪士尼3D", "✍️ 自定义"] }, { label: "05. 线条笔触", type: "select", id: "a5", options: ["细腻墨线", "无描边厚涂", "粗犷草图", "毛笔勾勒", "✍️ 自定义"] }, { label: "06. 上色工艺", type: "select", id: "a6", options: ["赛璐珞", "梦幻水彩", "写实厚涂", "三渲二", "✍️ 自定义"] }, { label: "07. 视角构图", type: "select", id: "a7", options: ["仰视低机位", "全景俯瞰", "黄金比例", "三层级拼图", "✍️ 自定义"] }, { label: "08. 氛围特效", type: "select", id: "a8", options: ["治愈", "冷酷", "魔法符文", "粒子光斑", "漫画速线", "璀璨星瞳", "✍️ 自定义"] }, { label: "09. 个人署名", type: "input", id: "a9", val: "Art by AI Master" } ] },
@@ -154,12 +164,14 @@
             const content = document.getElementById('track-content');
             let html = "";
             data.categories.forEach((cat) => {
-                html += `<div class="bg-neutral-900/50 rounded-3xl overflow-hidden border border-white/5"><div class="bg-amber-500/10 px-6 py-3 border-b border-white/5"><label class="text-[11px] font-black text-amber-500 uppercase tracking-widest">${cat.label}</label></div><div class="p-5">`;
-                if (cat.type === 'input') html += `<input type="text" id="${cat.id}" value="${cat.val}" class="w-full p-4 text-sm font-bold">`;
+                html += `<div class="bg-neutral-900/50 rounded-3xl overflow-hidden border border-white/5">
+                    <div class="bg-amber-500/10 px-6 py-3 border-b border-white/5"><label class="text-[13px] font-black text-amber-500 uppercase tracking-widest">${cat.label}</label></div>
+                    <div class="p-5">`;
+                if (cat.type === 'input') html += `<input type="text" id="${cat.id}" value="${cat.val}" class="main-input w-full p-4 text-base font-black">`;
                 else {
-                    html += `<select id="${cat.id}" class="w-full p-4 text-sm font-bold cursor-pointer" onchange="checkCustom(this)">`;
+                    html += `<select id="${cat.id}" class="main-input w-full p-4 text-base font-black cursor-pointer" onchange="checkCustom(this)">`;
                     cat.options.forEach(opt => html += `<option value="${opt}">${opt}</option>`);
-                    html += `</select><input type="text" id="${cat.id}_custom" class="w-full p-4 mt-4 text-sm font-bold custom-input border-amber-500/50 bg-amber-500/5" placeholder="请输入细节...">`;
+                    html += `</select><input type="text" id="${cat.id}_custom" class="main-input w-full p-4 mt-4 text-base font-black custom-input border-amber-500/50 bg-amber-500/5" placeholder="请输入细节...">`;
                 }
                 html += `</div></div>`;
             });
@@ -181,14 +193,14 @@
                 let val = (el.value.includes("自定义")) ? custom.value : (el.value.match(/\(([^)]+)\)/) ? el.value.match(/\(([^)]+)\)/)[1] : el.value);
                 if (val && !val.includes("请选择") && val !== "") parts.push(val);
             });
-            document.getElementById('result').value = parts.join(', ') + ", masterpiece, 8k resolution --ar 9:16 --v 6.0";
+            document.getElementById('result').value = parts.join(', ') + ", masterpiece, 8k resolution, professional cinematic lighting --ar 9:16 --v 6.0";
         }
 
         async function copyText() {
             const res = document.getElementById("result");
             if(!res.value) return;
-            try { await navigator.clipboard.writeText(res.value); alert("✅ 已复制！"); }
-            catch (err) { res.select(); document.execCommand("copy"); alert("✅ 已复制！"); }
+            try { await navigator.clipboard.writeText(res.value); alert("✅ 已成功复制指令！"); }
+            catch (err) { res.select(); document.execCommand("copy"); alert("✅ 已成功复制指令！"); }
         }
 
         window.onload = checkAuth;
