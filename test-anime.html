@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>动漫CG赛道功能测试 - 完整逻辑版</title>
+    <style>
+        body { font-family: sans-serif; background: #050505; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #121212; padding: 20px; border-radius: 10px; border: 1px solid #ff5722; }
+        .group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; color: #777; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 5px; box-sizing: border-box; }
+        .btn { background: #ff5722; color: #fff; padding: 15px; border: none; border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.2s; }
+        .btn:hover { opacity: 0.8; }
+        #result { margin-top: 20px; background: #000; padding: 15px; color: #00ff88; border: 1px solid #ff5722; min-height: 150px; border-radius: 5px; font-family: monospace; font-size: 14px; line-height: 1.5; width: 100%; box-sizing: border-box; }
+        .custom-input { display: none; margin-top: 5px; border-color: #ff5722; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🏮 动漫与CG赛道 - 完整逻辑测试</h2>
+        <div id="fields"></div>
+        <div class="btn-group">
+            <button class="btn" style="flex: 2;" onclick="generate()">🔥 生成终极全参数指令</button>
+            <button class="btn" style="flex: 1; background: #333;" onclick="copyText()">复制指令</button>
+        </div>
+        <textarea id="result" readonly placeholder="生成的指令将显示在这里..."></textarea>
+    </div>
+
+    <script>
+        const categories = [
+            { label: "1. 角色主体", type: "input", id: "subject", val: "银发机械武装少女" },
+            { label: "2. 环境结构", type: "input", id: "environment", val: "赛博霓虹下的东京废墟" },
+            { label: "3. 风格类型 (选择后自动填充)", type: "select", id: "style_type", options: [
+                "-- 请选择主流风格 --",
+                "经典赛璐珞 (Classic Cel Shading)",
+                "新海诚治愈系 (Makoto Shinkai)",
+                "京阿尼唯美 (Kyoto Animation)",
+                "宫崎骏吉卜力 (Studio Ghibli)",
+                "浮世绘 (Ukiyo-e Art)",
+                "光电/光效风 (Electric/Glow style)",
+                "油画风格 (Oil Painting style)",
+                "迷幻艺术 (Psychedelic Art)",
+                "中国古风 (Ancient Chinese style)",
+                "水墨丹青 (Traditional Ink)",
+                "儿童绘本 (Children's Storybook)",
+                "极简主义 (Minimalist Anime)",
+                "赛博朋克 (Cyberpunk)",
+                "虚幻5 CG渲染 (UE5 CG)",
+                "厚涂写实插画 (Painterly)",
+                "90年代复古 (90s Retro)",
+                "蒸汽波 (Vaporwave)",
+                "幽浮社光效 (Ufotable style)",
+                "扳机社夸张 (Studio Trigger)",
+                "MAPPA暗黑 (MAPPA style)",
+                "迪士尼3D (Disney style)",
+                "✍️ 自定义 (Custom...)"
+            ] },
+            { label: "4. 画风流派", type: "select", id: "a4", options: ["京阿尼 (Kyoto Animation)", "新海诚 (Makoto Shinkai)", "吉卜力 (Studio Ghibli)", "MAPPA (Gritty MAPPA)", "90s 赛璐珞 (Retro 90s anime)", "扳机社 (Studio Trigger)", "幽浮社 (Ufotable)", "虚幻5极致 (UE5 Cinematic)", "赛博朋克 (Cyberpunk)", "蒸汽波 (Vaporwave)", "水墨风格 (Traditional Chinese ink wash)", "迪士尼3D (Disney style)", "✍️ 自定义 (Custom...)"] },
+            { label: "5. 线条笔触", type: "select", id: "a5", options: ["细腻墨线 (Clean lineart)", "无描边厚涂 (Lineless)", "粗犷草图 (Rough sketch)", "钢笔勾勒 (Ink strokes)", "水彩描边 (Watercolor edges)", "毛笔勾勒 (Brush strokes)", "✍️ 自定义 (Custom...)"] },
+            { label: "6. 上色工艺", type: "select", id: "a6", options: ["赛璐珞 (Cel-shading)", "梦幻水彩 (Soft watercolor)", "三渲二 (3D to 2D)", "写实厚涂 (Realistic painting)", "喷枪渐变 (Airbrush)", "光影涂抹 (Painterly)", "✍️ 自定义 (Custom...)"] },
+            { label: "7. 视角构图", type: "select", id: "a7", options: ["低机位仰视 (Low angle)", "俯瞰全景 (Bird's eye view)", "广角鱼眼 (Wide fisheye)", "电影感构图 (Cinematic composition)", "黄金比例 (Golden ratio)", "三层级拼图 (Triptych)", "✍️ 自定义 (Custom...)"] },
+            { label: "8. 氛围特效", type: "select", id: "a8", options: ["治愈 (Healing atmosphere)", "冷酷 (Cyberpunk mood)", "史诗 (Epic scale)", "忧郁 (Melancholic)", "魔法符文 (Magic circles)", "粒子光斑 (Glowing particles)", "漫画速线 (Speed lines)", "璀璨星瞳 (Starry eyes detail)", "禅意 (Zen atmosphere)", "迷幻 (Psychedelic mood)", "✍️ 自定义 (Custom...)"] },
+            { label: "9. 个人署名", type: "input", id: "a9", val: "Art by AI Master" }
+        ];
+
+        const presets = {
+            "经典赛璐珞 (Classic Cel Shading)": { a4: "90s 赛璐珞 (Retro 90s anime)", a5: "细腻墨线 (Clean lineart)", a6: "赛璐珞 (Cel-shading)", a8: "治愈 (Healing atmosphere)" },
+            "新海诚治愈系 (Makoto Shinkai)": { a4: "新海诚 (Makoto Shinkai)", a5: "水彩描边 (Watercolor edges)", a6: "梦幻水彩 (Soft watercolor)", a8: "治愈 (Healing atmosphere)" },
+            "京阿尼唯美 (Kyoto Animation)": { a4: "京阿尼 (Kyoto Animation)", a5: "细腻墨线 (Clean lineart)", a6: "光影涂抹 (Painterly)", a8: "璀璨星瞳 (Starry eyes detail)" },
+            "宫崎骏吉卜力 (Studio Ghibli)": { a4: "吉卜力 (Studio Ghibli)", a5: "钢笔勾勒 (Ink strokes)", a6: "梦幻水彩 (Soft watercolor)", a8: "史诗 (Epic scale)" },
+            "浮世绘 (Ukiyo-e Art)": { a4: "水墨风格 (Traditional Chinese ink wash)", a5: "细腻墨线 (Clean lineart)", a6: "赛璐珞 (Cel-shading)", a8: "禅意 (Zen atmosphere)" },
+            "光电/光效风 (Electric/Glow style)": { a4: "幽浮社 (Ufotable)", a5: "无描边厚涂 (Lineless)", a6: "喷枪渐变 (Airbrush)", a8: "粒子光斑 (Glowing particles)" },
+            "油画风格 (Oil Painting style)": { a4: "虚幻5极致 (UE5 Cinematic)", a5: "粗犷草图 (Rough sketch)", a6: "写实厚涂 (Realistic painting)", a8: "忧郁 (Melancholic)" },
+            "迷幻艺术 (Psychedelic Art)": { a4: "蒸汽波 (Vaporwave)", a5: "无描边厚涂 (Lineless)", a6: "喷枪渐变 (Airbrush)", a8: "迷幻 (Psychedelic mood)" },
+            "中国古风 (Ancient Chinese style)": { a4: "水墨风格 (Traditional Chinese ink wash)", a5: "毛笔勾勒 (Brush strokes)", a6: "光影涂抹 (Painterly)", a8: "禅意 (Zen atmosphere)" },
+            "水墨丹青 (Traditional Ink)": { a4: "水墨风格 (Traditional Chinese ink wash)", a5: "毛笔勾勒 (Brush strokes)", a6: "三渲二 (3D to 2D)", a8: "禅意 (Zen atmosphere)" },
+            "儿童绘本 (Children's Storybook)": { a4: "吉卜力 (Studio Ghibli)", a5: "水彩描边 (Watercolor edges)", a6: "梦幻水彩 (Soft watercolor)", a8: "治愈 (Healing atmosphere)" },
+            "极简主义 (Minimalist Anime)": { a4: "新海诚 (Makoto Shinkai)", a5: "细腻墨线 (Clean lineart)", a6: "赛璐珞 (Cel-shading)", a8: "禅意 (Zen atmosphere)" },
+            "赛博朋克 (Cyberpunk)": { a4: "赛博朋克 (Cyberpunk)", a5: "无描边厚涂 (Lineless)", a6: "写实厚涂 (Realistic painting)", a8: "冷酷 (Cyberpunk mood)" },
+            "虚幻5 CG渲染 (UE5 CG)": { a4: "虚幻5极致 (UE5 Cinematic)", a5: "无描边厚涂 (Lineless)", a6: "写实厚涂 (Realistic painting)", a8: "粒子光斑 (Glowing particles)" },
+            "厚涂写实插画 (Painterly)": { a4: "虚幻5极致 (UE5 Cinematic)", a5: "无描边厚涂 (Lineless)", a6: "写实厚涂 (Realistic painting)", a8: "史诗 (Epic scale)" },
+            "90年代复古 (90s Retro)": { a4: "90s 赛璐珞 (Retro 90s anime)", a5: "粗犷草图 (Rough sketch)", a6: "赛璐珞 (Cel-shading)", a8: "忧郁 (Melancholic)" },
+            "蒸汽波 (Vaporwave)": { a4: "蒸汽波 (Vaporwave)", a5: "无描边厚涂 (Lineless)", a6: "喷枪渐变 (Airbrush)", a8: "迷幻 (Psychedelic mood)" },
+            "幽浮社光效 (Ufotable style)": { a4: "幽浮社 (Ufotable)", a5: "细腻墨线 (Clean lineart)", a6: "三渲二 (3D to 2D)", a8: "魔法符文 (Magic circles)" },
+            "扳机社夸张 (Studio Trigger)": { a4: "扳机社 (Studio Trigger)", a5: "粗犷草图 (Rough sketch)", a6: "赛璐珞 (Cel-shading)", a8: "漫画速线 (Speed lines)" },
+            "MAPPA暗黑 (MAPPA style)": { a4: "MAPPA (Gritty MAPPA)", a5: "钢笔勾勒 (Ink strokes)", a6: "光影涂抹 (Painterly)", a8: "忧郁 (Melancholic)" },
+            "迪士尼3D (Disney style)": { a4: "迪士尼3D (Disney style)", a5: "无描边厚涂 (Lineless)", a6: "写实厚涂 (Realistic painting)", a8: "治愈 (Healing atmosphere)" }
+        };
+
+        const fieldsDiv = document.getElementById('fields');
+        categories.forEach(cat => {
+            const div = document.createElement('div');
+            div.className = 'group';
+            div.innerHTML = `<label>${cat.label}</label>`;
+            if (cat.type === 'input') {
+                div.innerHTML += `<input type="text" id="${cat.id}" value="${cat.val}">`;
+            } else {
+                let options = cat.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                div.innerHTML += `<select id="${cat.id}" onchange="check(this)">${options}</select>`;
+                div.innerHTML += `<input type="text" id="${cat.id}_custom" class="custom-input" placeholder="输入自定义内容...">`;
+            }
+            fieldsDiv.appendChild(div);
+        });
+
+        function check(sel) {
+            const custom = document.getElementById(sel.id + '_custom');
+            if (sel.value.includes("自定义")) {
+                custom.style.display = 'block';
+                custom.focus();
+            } else {
+                if(custom) custom.style.display = 'none';
+            }
+
+            if (sel.id === 'style_type' && presets[sel.value]) {
+                const preset = presets[sel.value];
+                for (let key in preset) {
+                    document.getElementById(key).value = preset[key];
+                    const c = document.getElementById(key + '_custom');
+                    if(c) c.style.display = 'none';
+                }
+            }
+        }
+
+        function copyText() {
+            const res = document.getElementById("result");
+            if(!res.value) return;
+            res.select();
+            document.execCommand("copy");
+            alert("✨ 指令已复制到剪贴板！");
+        }
+
+        function generate() {
+            let parts = [];
+            categories.forEach(cat => {
+                const el = document.getElementById(cat.id);
+                const custom = document.getElementById(cat.id + '_custom');
+                let val = "";
+                if (cat.type === 'input') {
+                    val = el.value;
+                } else {
+                    if (el.value.includes("自定义")) {
+                        val = custom.value;
+                    } else {
+                        const match = el.value.match(/\(([^)]+)\)/);
+                        val = match ? match[1] : el.value;
+                    }
+                }
+                if (val && !val.includes("请选择") && val !== "") parts.push(val);
+            });
+            // 注入大量高质量动漫渲染参数
+            const qualityTails = ", masterpiece, best quality, ultra-detailed, 8k resolution, highly detailed skin and eyes, professional lighting, cinematic colors, trending on artstation, unreal engine 5 render, octane render, ray tracing, sharp focus, volumetric lighting, vibrant colors --ar 9:16 --v 6.0";
+            document.getElementById('result').value = parts.join(', ') + qualityTails;
+        }
+    </script>
+</body>
+</html>

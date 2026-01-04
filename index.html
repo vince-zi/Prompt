@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI MASTER - V30 终极全能视觉创作矩阵</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050505; color: #fff; overflow-x: hidden; }
+        #activation-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; }
+        .modal-card { background: #111; border: 1px solid rgba(245, 158, 11, 0.3); padding: 3rem; border-radius: 3rem; max-width: 450px; width: 95%; text-align: center; }
+        .key-input { background: #000 !important; border: 2px solid #222 !important; color: #f59e0b !important; text-align: center; font-family: monospace; letter-spacing: 2px; text-transform: uppercase; }
+        .tab-btn.active { background-color: #f59e0b; color: #000; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+        .gradient-border { border: 1px solid transparent; background: linear-gradient(#121212, #121212) padding-box, linear-gradient(45deg, #f59e0b, #78350f) border-box; }
+        .custom-input { display: none; }
+        .status-tag { font-size: 10px; background: rgba(245,158,11,0.1); color: #f59e0b; px-3; py-1; rounded-full; border: 1px solid rgba(245,158,11,0.2); font-weight: bold; padding: 4px 12px; border-radius: 99px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- 激活弹窗 -->
+    <div id="activation-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-amber-500/20">
+                <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            </div>
+            <h2 class="text-2xl font-black text-white mb-3">云端授权验证</h2>
+            <p class="text-gray-500 text-sm mb-10 leading-relaxed">请输入您的 30 天时长卡密。<br>该卡密将与您的云端记录永久绑定。</p>
+            
+            <input type="text" id="cd-key" class="key-input w-full p-5 mb-6 rounded-2xl text-xl font-bold" placeholder="V30-XXXX-XXXX">
+            
+            <button id="verify-btn" onclick="verifyKey()" class="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 mb-6 uppercase tracking-widest">
+                立即开启云端激活
+            </button>
+            
+            <a href="https://vince-zi.github.io/Ai-master/" class="text-amber-500/40 text-xs font-bold uppercase tracking-widest hover:text-amber-500">
+                还没有卡密？点击获取授权 →
+            </a>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="main-content" style="display: none;">
+        <div class="max-w-7xl mx-auto">
+            <!-- 头部 -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <svg class="w-8 h-8 text-black fill-current" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-black italic tracking-tighter text-white">AI MASTER <span class="text-amber-500">V30</span></h1>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="status-tag" id="expiry-display text-amber-500">正在同步云端...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex bg-neutral-900/90 p-1.5 rounded-2xl border border-white/5 flex-wrap justify-center gap-1">
+                    <button onclick="switchTab('portrait')" id="btn-portrait" class="tab-btn active px-8 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest">商业人像</button>
+                    <button onclick="switchTab('anime')" id="btn-anime" class="tab-btn px-8 py-3.5 rounded-xl text-sm font-black text-gray-500 uppercase tracking-widest">动漫CG</button>
+                    <button onclick="switchTab('landscape')" id="btn-landscape" class="tab-btn px-8 py-3.5 rounded-xl text-sm font-black text-gray-500 uppercase tracking-widest">风光建筑</button>
+                    <button onclick="switchTab('commercial')" id="btn-commercial" class="tab-btn px-8 py-3.5 rounded-xl text-sm font-black text-gray-500 uppercase tracking-widest">商业摄影</button>
+                </div>
+            </div>
+
+            <!-- 参数配置 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div class="lg:col-span-2 space-y-8">
+                    <div id="track-content" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
+                        <button onclick="generatePrompt()" class="py-5 bg-amber-500 text-black font-black rounded-2xl shadow-2xl shadow-amber-500/40 uppercase tracking-widest text-lg">🚀 生成终极指令</button>
+                        <button onclick="copyText()" class="py-5 bg-white/5 text-amber-500 font-bold rounded-2xl border border-white/10 uppercase tracking-widest text-lg">一键复制</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-1">
+                    <div class="sticky top-12 gradient-border p-8 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
+                        <h3 class="text-xs font-black text-amber-500 uppercase tracking-[0.4em] mb-8">Prompt Output</h3>
+                        <textarea id="result" readonly class="w-full h-[600px] bg-transparent border-none text-sm font-mono text-gray-400 leading-relaxed resize-none focus:ring-0" placeholder="授权后解锁全部功能..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 云端授权系统 (Vercel + Upstash) ---
+        async function verifyKey() {
+            const key = document.getElementById('cd-key').value.trim().toUpperCase();
+            if (!key) return;
+
+            const btn = document.getElementById('verify-btn');
+            btn.innerText = "正在验证云端授权...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('v30_active_key', key);
+                    localStorage.setItem('v30_expiry_time', data.expiry);
+                    showApp(data.expiry);
+                    alert(data.status === 'activated' ? "✨ 激活成功！30天云端计时已开始。" : "✨ 欢迎回来！授权状态已同步。");
+                } else {
+                    alert("❌ 验证失败：" + (data.error || "未知错误"));
+                }
+            } catch (err) {
+                alert("❌ 无法连接到验证服务器，请检查网络。");
+            } finally {
+                btn.innerText = "立即开启云端激活";
+                btn.disabled = false;
+            }
+        }
+
+        function showApp(expiry) {
+            document.getElementById('activation-modal').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            const daysLeft = Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24));
+            document.getElementById('expiry-display').innerText = `VIP 云端剩余: ${daysLeft} 天`;
+            renderTrack();
+        }
+
+        async function checkAuth() {
+            const savedKey = localStorage.getItem('v30_active_key');
+            if (savedKey) {
+                // 静默去云端同步一次
+                try {
+                    const response = await fetch('/api/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: savedKey })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        localStorage.setItem('v30_expiry_time', data.expiry);
+                        showApp(data.expiry);
+                        return;
+                    }
+                } catch (e) {}
+            }
+            document.getElementById('activation-modal').style.display = 'flex';
+        }
+
+        // --- 业务逻辑 (保持不变) ---
+        const trackData = {
+            portrait: { title: "商业人像", categories: [ { label: "01. 角色主体", type: "input", id: "subject", val: "一位充满气质的亚裔女性模特" }, { label: "02. 画面构图", type: "select", id: "p2", options: ["中心构图 (Centralized)", "上中下拼图", "三分法", "黄金比例", "对称构图", "✍️ 自定义"] }, { label: "03. 拍摄环境", type: "input", id: "p3", val: "复古的欧洲图书馆" }, { label: "04. 核心机位", type: "select", id: "p4", options: ["平视", "仰拍", "俯拍", "荷兰位", "极尽特写", "✍️ 自定义"] }, { label: "05. 相机品牌", type: "select", id: "p5", options: ["哈苏 (X2D)", "徕卡 (M11-P)", "飞思 (IQ4)", "富士 (GFX)", "佳能 (R3)", "✍️ 自定义"] }, { label: "06. 焦段选择", type: "select", id: "p6", options: ["85mm", "35mm", "50mm", "135mm", "✍️ 自定义"] }, { label: "07. 光圈设置", type: "select", id: "p7", options: ["f/1.2", "f/1.4", "f/2.8", "f/8.0", "✍️ 自定义"] }, { label: "08. 灯光品牌", type: "select", id: "p8", options: ["布朗 (Broncolor)", "保富图 (Profoto)", "阿莱 (Arri)", "自然窗光", "✍️ 自定义"] }, { label: "09. 布光方案", type: "select", id: "p9", options: ["伦勃朗光", "蝴蝶光", "侧位光", "轮廓光", "丁达尔效应", "✍️ 自定义"] }, { label: "10. 控光附件", type: "select", id: "p10", options: ["八角柔光箱", "雷达罩", "束光筒", "反光板", "✍️ 自定义"] }, { label: "11. 视觉元素", type: "select", id: "p11", options: ["无", "悬浮花瓣", "弥漫烟雾", "镜面反射", "✍️ 自定义"] }, { label: "12. 皮肤质感", type: "select", id: "p12", options: ["极致毛孔", "湿润质感", "丝滑润饰", "胶片颗粒", "✍️ 自定义"] }, { label: "13. 美学风格", type: "select", id: "p13", options: ["情感真实主义", "新中式", "古典油画", "黑色电影", "极简主义", "✍️ 自定义"] }, { label: "14. 色彩调性", type: "select", id: "p14", options: ["高透模式", "柯达 400", "电影青橙", "王家卫风格", "✍️ 自定义"] }, { label: "15. 商业排版", type: "select", id: "p15", options: ["无", "VOGUE 封面", "时尚芭莎", "电影海报", "✍️ 自定义"] }, { label: "16. 个人署名", type: "input", id: "p16", val: "Created by Master" } ] },
+            anime: { title: "动漫CG", categories: [ { label: "01. 角色主体", type: "input", id: "subject", val: "银发机械武装少女" }, { label: "02. 环境结构", type: "input", id: "environment", val: "赛博霓虹下的东京废墟" }, { label: "03. 风格类型", type: "select", id: "style_type", options: ["-- 请选择 --", "经典赛璐珞", "新海诚治愈系", "京阿尼唯美", "宫崎骏吉卜力", "浮世绘", "光电/光效风", "虚幻5 CG渲染", "90年代复古", "蒸汽波", "迪士尼3D", "✍️ 自定义"] }, { label: "04. 画风流派", type: "select", id: "a4", options: ["京阿尼", "新海诚", "吉卜力", "MAPPA", "90s 赛璐珞", "虚幻5极致", "赛博朋克", "迪士尼3D", "✍️ 自定义"] }, { label: "05. 线条笔触", type: "select", id: "a5", options: ["细腻墨线", "无描边厚涂", "粗犷草图", "毛笔勾勒", "✍️ 自定义"] }, { label: "06. 上色工艺", type: "select", id: "a6", options: ["赛璐珞", "梦幻水彩", "写实厚涂", "三渲二", "✍️ 自定义"] }, { label: "07. 视角构图", type: "select", id: "a7", options: ["仰视低机位", "全景俯瞰", "黄金比例", "三层级拼图", "✍️ 自定义"] }, { label: "08. 氛围特效", type: "select", id: "a8", options: ["治愈", "冷酷", "魔法符文", "粒子光斑", "漫画速线", "璀璨星瞳", "✍️ 自定义"] }, { label: "09. 个人署名", type: "input", id: "a9", val: "Art by AI Master" } ] },
+            landscape: { title: "风光建筑", categories: [ { label: "01. 核心景观", type: "input", id: "subject", val: "未来的水上科幻都市" }, { label: "02. 环境细节", type: "input", id: "l2", val: "云雾缭绕的高山" }, { label: "03. 拍摄时段", type: "select", id: "l3", options: ["黄金时刻", "蓝色时刻", "午夜银河", "晨曦薄雾", "✍️ 自定义"] }, { label: "04. 构图法则", type: "select", id: "l4", options: ["引导线", "三分法", "对称倒影", "极简留白", "✍️ 自定义"] }, { label: "05. 相机系统", type: "select", id: "l5", options: ["飞思XT", "大疆航拍", "索尼Alpha", "徕卡SL", "✍️ 自定义"] }, { label: "06. 色彩风格", type: "select", id: "l8", options: ["国家地理", "柯达风光", "赛博未来", "水墨山水", "✍️ 自定义"] }, { label: "07. 个人署名", type: "input", id: "l9", val: "Photo by Explorer" } ] },
+            commercial: { title: "商业摄影", categories: [ { label: "01. 产品主体", type: "input", id: "c1", val: "白底青花瓷风格奶茶杯" }, { label: "02. 材质质感", type: "select", id: "c3", options: ["细腻陶瓷", "晶莹玻璃", "拉丝金属", "✍️ 自定义"] }, { label: "03. 布光方案", type: "select", id: "c4", options: ["自然窗光", "顶部轮廓光", "环绕柔光", "✍️ 自定义"] }, { label: "04. 最终导出", type: "input", id: "c7", val: "8K Advertising Masterpiece" } ] }
+        };
+
+        let currentTab = 'portrait';
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active', 'text-black'); btn.classList.add('text-gray-500'); });
+            document.getElementById('btn-' + tab).classList.add('active', 'text-black');
+            document.getElementById('btn-' + tab).classList.remove('text-gray-500');
+            renderTrack();
+        }
+
+        function renderTrack() {
+            const data = trackData[currentTab];
+            const content = document.getElementById('track-content');
+            let html = "";
+            data.categories.forEach((cat) => {
+                html += `<div class="bg-neutral-900/50 rounded-3xl overflow-hidden border border-white/5"><div class="bg-amber-500/10 px-6 py-3 border-b border-white/5"><label class="text-[11px] font-black text-amber-500 uppercase tracking-widest">${cat.label}</label></div><div class="p-5">`;
+                if (cat.type === 'input') html += `<input type="text" id="${cat.id}" value="${cat.val}" class="w-full p-4 text-sm font-bold">`;
+                else {
+                    html += `<select id="${cat.id}" class="w-full p-4 text-sm font-bold cursor-pointer" onchange="checkCustom(this)">`;
+                    cat.options.forEach(opt => html += `<option value="${opt}">${opt}</option>`);
+                    html += `</select><input type="text" id="${cat.id}_custom" class="w-full p-4 mt-4 text-sm font-bold custom-input border-amber-500/50 bg-amber-500/5" placeholder="请输入细节...">`;
+                }
+                html += `</div></div>`;
+            });
+            content.innerHTML = html;
+        }
+
+        function checkCustom(select) {
+            const customInput = document.getElementById(select.id + '_custom');
+            if (select.value && select.value.includes("自定义")) { customInput.style.display = 'block'; customInput.focus(); }
+            else if (customInput) customInput.style.display = 'none';
+        }
+
+        function generatePrompt() {
+            const data = trackData[currentTab];
+            let parts = [];
+            data.categories.forEach(cat => {
+                const el = document.getElementById(cat.id);
+                const custom = document.getElementById(cat.id + '_custom');
+                let val = (el.value.includes("自定义")) ? custom.value : (el.value.match(/\(([^)]+)\)/) ? el.value.match(/\(([^)]+)\)/)[1] : el.value);
+                if (val && !val.includes("请选择") && val !== "") parts.push(val);
+            });
+            document.getElementById('result').value = parts.join(', ') + ", masterpiece, 8k resolution --ar 9:16 --v 6.0";
+        }
+
+        async function copyText() {
+            const res = document.getElementById("result");
+            if(!res.value) return;
+            try { await navigator.clipboard.writeText(res.value); alert("✅ 已复制！"); }
+            catch (err) { res.select(); document.execCommand("copy"); alert("✅ 已复制！"); }
+        }
+
+        window.onload = checkAuth;
+    </script>
+</body>
+</html>

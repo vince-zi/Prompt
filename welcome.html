@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI MASTER - 下拉即出片</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', 'PingFang SC', -apple-system, sans-serif;
+            background-color: #020202;
+            color: #ffffff;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- 动态暖黄呼吸背景 --- */
+        #bg-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: #000;
+        }
+        .blob {
+            position: absolute;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0;
+            transition: opacity 3.5s ease-in-out;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, transparent 75%);
+        }
+
+        /* --- 图片滚动槽 --- */
+        .scroller {
+            mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+        }
+        .scroller-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: scroll-vertical 25s linear infinite;
+        }
+        .scroller-inner img {
+            width: 100%;
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+        }
+        @keyframes scroll-vertical {
+            to { transform: translateY(calc(-50% - 0.75rem)); }
+        }
+
+        /* --- 玻璃卡片样式 --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(40px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- 渐变文字效果 --- */
+        .title-gradient {
+            background: linear-gradient(to right, #fff 40%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        .slogan-gradient {
+            background: linear-gradient(to right, #fbbf24, #f59e0b, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .btn-glow {
+            animation: btnPulse 2.5s infinite;
+        }
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.5); }
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.96);
+            backdrop-filter: blur(25px);
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-container">
+        <div id="blob1" class="blob"></div>
+        <div id="blob2" class="blob"></div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <header class="fixed top-0 w-full z-50 bg-black/40 backdrop-blur-2xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg">
+                    <i data-lucide="zap" class="text-white w-5 h-5 fill-current"></i>
+                </div>
+                <span class="font-black text-xl tracking-tighter italic">AI MASTER</span>
+            </div>
+            <nav class="flex items-center gap-6">
+                <a href="v30.html" class="text-gray-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">V30生成器</a>
+                <a href="#pricing" class="bg-amber-500 px-5 py-2 rounded-xl text-xs font-black text-white hover:scale-105 transition-transform shadow-lg shadow-amber-500/30">立即开启</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 英雄区 (Hero Section) -->
+    <section class="relative pt-36 pb-20 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+            
+            <!-- 左侧：图片滚动展示 (已替换为 GitHub 图片) -->
+            <div class="w-full lg:w-[460px] shrink-0">
+                <div class="relative aspect-[4/5] w-full bg-transparent overflow-hidden scroller">
+                    <div class="scroller-inner p-2">
+                        <img src="https://raw.githubusercontent.com/vince-zi/Ai-master/main/Fashion_magazine_cover_2k_202512232107%20(1).jpeg" alt="AI artwork">
+                        <img src="https://raw.githubusercontent.com/vince-zi/Ai-master/main/Fashion_magazine_cover_2k_202512261232%20(2).jpeg" alt="AI artwork">
+                        <img src="https://raw.githubusercontent.com/vince-zi/Ai-master/main/Hasselblad_natural_color_2k_202512281944.jpeg" alt="AI artwork">
+                        <img src="https://raw.githubusercontent.com/vince-zi/Ai-master/main/Standard_color_grading_2k_202512230338%20(1).jpeg" alt="AI artwork">
+                        <img src="https://raw.githubusercontent.com/vince-zi/Ai-master/main/Standard_color_grading_2k_202512230408.jpeg" alt="AI artwork">
+                        <!-- Loop (重复第一张以实现无缝滚动) -->
+                        <img src="https://raw.githubusercontent.com/vince-zi/Ai-master/main/Fashion_magazine_cover_2k_202512232107%20(1).jpeg" alt="AI artwork">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：震撼文案区 -->
+            <div class="flex-1 text-center lg:text-left">
+                <div class="inline-block px-4 py-1.5 mb-8 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-500 text-[10px] font-black tracking-[0.2em] uppercase">
+                    Revolutionary Efficiency
+                </div>
+                <h1 class="text-5xl md:text-[5rem] font-black mb-10 leading-[1.1] tracking-tighter">
+                    别再被提示词折磨了<br>
+                    这里只有 <span class="text-amber-500">‘下拉’</span> 和 <span class="title-gradient whitespace-nowrap">‘出片’</span>
+                </h1>
+                
+                <div class="space-y-5 mb-12">
+                    <p class="text-lg md:text-xl font-bold flex items-center justify-center lg:justify-start">
+                        <span class="slogan-gradient leading-relaxed">想不出好词？下拉三秒钟，搞定 10 小时也调不出的高级感。</span>
+                    </p>
+                    <p class="text-lg md:text-xl font-bold flex items-center justify-center lg:justify-start">
+                        <span class="slogan-gradient leading-relaxed">我把 1000 组爆款逻辑存进了下拉框，你只需要负责审美。</span>
+                    </p>
+                    <p class="text-lg md:text-xl font-bold flex items-center justify-center lg:justify-start">
+                        <span class="slogan-gradient leading-relaxed">省下写提示词的时间去喝咖啡，图，下拉一下就有了。</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-5 justify-center lg:justify-start">
+                    <a href="v30.html" class="px-12 py-5 bg-white text-black font-black rounded-2xl shadow-2xl hover:scale-105 transition-all">
+                        进入 V30 生成器
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块展示区 -->
+    <section id="pricing" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="glass-card p-10 rounded-[3.5rem] border-amber-500/20 flex flex-col relative overflow-hidden group">
+                <div class="mb-10 relative z-10">
+                    <div class="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center mb-6 text-amber-500">
+                        <i data-lucide="sparkles" class="w-8 h-8 fill-current"></i>
+                    </div>
+                    <h3 class="text-2xl font-black mb-2 tracking-tight">AI 提示词助手</h3>
+                    <p class="text-gray-500 text-[10px] font-black uppercase tracking-widest italic">V30 Professional Edition</p>
+                </div>
+                <div class="flex-1 mb-10 relative z-10">
+                    <p class="text-4xl font-black text-amber-500 mb-6 tracking-tighter uppercase italic">Premium</p>
+                    <p class="text-gray-400 font-bold text-sm leading-relaxed">集成了 16 项全能赛道，从商业人像到赛博朋克，一键生成大师级作品。</p>
+                </div>
+                <a href="v30.html" class="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl text-center shadow-lg shadow-amber-500/30 transition-all">
+                    立即开启创作
+                </a>
+            </div>
+
+            <!-- 其他模块可在此添加 -->
+        </div>
+    </section>
+
+    <script>
+        lucide.createIcons();
+
+        /* --- 背景暖黄呼吸灯 --- */
+        const blob1 = document.getElementById('blob1');
+        const blob2 = document.getElementById('blob2');
+        function animateBlob(blob) {
+            blob.style.opacity = '0';
+            setTimeout(() => {
+                const x = Math.random() * 80 + 10;
+                const y = Math.random() * 80 + 10;
+                blob.style.left = x + '%';
+                blob.style.top = y + '%';
+                blob.style.opacity = '1';
+            }, 3000);
+        }
+        animateBlob(blob1); setInterval(() => animateBlob(blob1), 6000);
+        setTimeout(() => { animateBlob(blob2); setInterval(() => animateBlob(blob2), 6000); }, 3000);
+    </script>
+</body>
+</html>
